@@ -9,6 +9,7 @@
 	import type { CreditModel } from '../../../database/model';
 	import { db } from '../../../database/db';
 	import { format } from 'date-fns';
+	import { liveQuery } from 'dexie';
 
 	let newData: CreditModel = {
 		amount: 0,
@@ -22,7 +23,11 @@
 
 	$: formattedcreatedOn = format(newData.createdOn, 'yyyy-MM-dd');
 
+	$: creditListName = liveQuery(async () => {
+		return [...new Set((await db.credit.toArray()).map((x) => x.name))];
+	});
 	let add = () => {
+		newData.name = newData.name.toUpperCase();
 		db.credit.add(newData);
 		componentSide.set(null);
 	};
@@ -43,7 +48,7 @@
 		<Card.Description>Create or update Credit details</Card.Description>
 	</Card.Header>
 	<Card.Content>
-		<div class="grid gap-6">
+		<div class="grid grid-cols-2 gap-6">
 			<div class="grid gap-3">
 				<Label for="name">Date</Label>
 				<Input
@@ -71,9 +76,19 @@
 					id="name"
 					bind:value={newData.name}
 					type="text"
+					list="browsers"
 					class="w-full"
-					placeholder="Name here"
+					autocomplete="off"
+					placeholder="Item name here"
 				/>
+
+				<datalist id="browsers">
+					{#if !!$creditListName && $creditListName.length > 0}
+						{#each $creditListName as name}
+							<option value={name}> {name}</option>
+						{/each}
+					{/if}
+				</datalist>
 			</div>
 			<div class="grid gap-3">
 				<Label for="name">PhoneNumber</Label>
@@ -131,10 +146,7 @@
 			class="mr-3">Cancel</Button
 		>
 		<Button
-			disabled={newData.type == '' ||
-				newData.amount == 0 ||
-				newData.vehicle == '' ||
-				newData.phoneNumber == ''}
+			disabled={newData.type == '' || newData.amount == 0 || newData.name == ''}
 			on:click={add}>Add</Button
 		>
 	</Card.Footer>
