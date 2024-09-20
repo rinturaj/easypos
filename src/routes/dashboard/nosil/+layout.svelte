@@ -2,7 +2,6 @@
 	import { componentSide } from '../../../lib/component.store';
 	import AddNosil from '../../../lib/components/custom/addNosil.svelte';
 	import Button from '../../../lib/components/ui/button/button.svelte';
-	import * as Card from '../../../lib/components/ui/card';
 	import { PlusCircle } from 'lucide-svelte';
 
 	componentSide.set(null);
@@ -30,6 +29,5 @@
 			>
 		</div>
 	</div>
-
 	<slot></slot>
 </div>

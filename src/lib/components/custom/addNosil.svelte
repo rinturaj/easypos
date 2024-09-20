@@ -6,6 +6,18 @@
 	import { componentSide } from '../../component.store';
 	import Button from '../ui/button/button.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import type { Nosil } from '../../../database/model';
+	import { db } from '../../../database/db';
+
+	let newData: Nosil = {
+		reading: 0,
+		name: '',
+		type: ''
+	};
+	let add = () => {
+		db.nosil.add(newData);
+		componentSide.set(null);
+	};
 </script>
 
 <div class="w-full p-3">
@@ -18,11 +30,21 @@
 		<div class="grid gap-6">
 			<div class="grid gap-3">
 				<Label for="name">Nosile Name</Label>
-				<Input id="name" type="text" class="w-full" placeholder="name here" value="" />
+				<Input
+					id="name"
+					bind:value={newData.name}
+					type="text"
+					class="w-full"
+					placeholder="name here"
+				/>
 			</div>
 			<div class="grid gap-3">
 				<Label for="name">Type</Label>
-				<Select.Root>
+				<Select.Root
+					onSelectedChange={(v) => {
+						v && (newData.type = '' + v.value);
+					}}
+				>
 					<Select.Trigger>
 						<Select.Value placeholder="Choose Type" />
 					</Select.Trigger>
@@ -34,12 +56,11 @@
 							{/each}
 						</Select.Group>
 					</Select.Content>
-					<Select.Input name="type" />
 				</Select.Root>
-				<div class="grid gap-3">
-					<Label for="description">Description</Label>
-					<Textarea id="description" value="" class="min-h-32" />
-				</div>
+			</div>
+			<div class="grid gap-3">
+				<Label for="description">Current Reading</Label>
+				<Input id="description" bind:value={newData.reading} />
 			</div>
 		</div></Card.Content
 	>
@@ -51,7 +72,7 @@
 			variant="outline"
 			class="mr-3">Cancel</Button
 		>
-		<Button>Add</Button>
+		<Button disabled={newData.name == '' || newData.type == ''} on:click={add}>Add</Button>
 	</Card.Footer>
 	<!-- </Card.Root> -->
 </div>

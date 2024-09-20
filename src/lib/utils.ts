@@ -9,6 +9,9 @@ import Adduser from './components/custom/adduser.svelte';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
+export function toNumber(number: number): number {
+	return parseFloat(Number(number).toFixed(2));
+}
 
 type FlyAndScaleParams = {
 	y?: number;

@@ -6,6 +6,9 @@
 	import { Fuel } from 'lucide-svelte';
 	import { UserRoundCog } from 'lucide-svelte';
 	import { Label } from 'bits-ui';
+	import { redirect } from '@sveltejs/kit';
+	import { base } from '$app/paths';
+	import { goto } from '$app/navigation';
 
 	export let isCollapsed: boolean;
 
@@ -32,6 +35,10 @@
 	selected={{ value: selectedAccount.label, label: selectedAccount.label }}
 	onSelectedChange={(e) => {
 		selectedAccount = accounts.find((account) => account.label === e?.value) || accounts[0];
+		let url = `${base}/${selectedAccount.label == 'Sales' ? 'dashboard/overview' : 'dashboard/stock'}`;
+		console.log(url);
+
+		goto(url);
 	}}
 >
 	<Select.Trigger

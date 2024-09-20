@@ -1,0 +1,72 @@
+<script lang="ts">
+	import CalendarIcon from 'lucide-svelte/icons/calendar';
+	import type { DateRange } from 'bits-ui';
+	import {
+		CalendarDate,
+		CalendarDateTime,
+		DateFormatter,
+		type DateValue,
+		getLocalTimeZone
+	} from '@internationalized/date';
+	import { cn } from '$lib/utils.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { RangeCalendar } from '$lib/components/ui/range-calendar/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+
+	const df = new DateFormatter('en-US', {
+		dateStyle: 'medium'
+	});
+	export let startValue: DateValue = new CalendarDateTime(
+		new Date().getFullYear(),
+		new Date().getMonth() + 1,
+		1
+	);
+
+	export let value: DateRange | undefined = {
+		start: startValue.set({ hour: 0, minute: 0 }),
+		end: startValue.set({ day: new Date().getDate(), hour: 23, minute: 59 })
+	};
+
+	$: if (value && value.end) {
+		value.end = value.end?.set({ hour: 23, minute: 59 });
+	}
+</script>
+
+<div class="grid gap-2">
+	<Popover.Root openFocus>
+		<Popover.Trigger asChild let:builder>
+			<Button
+				variant="outline"
+				class={cn(
+					'w-[300px] justify-start text-left font-normal',
+					!value && 'text-muted-foreground'
+				)}
+				builders={[builder]}
+			>
+				<CalendarIcon class="mr-2 h-4 w-4" />
+				{#if value && value.start}
+					{#if value.end}
+						{df.format(value.start.toDate(getLocalTimeZone()))} - {df.format(
+							value.end.toDate(getLocalTimeZone())
+						)}
+					{:else}
+						{df.format(value.start.toDate(getLocalTimeZone()))}
+					{/if}
+				{:else if startValue}
+					{df.format(startValue.toDate(getLocalTimeZone()))}
+				{:else}
+					Pick a date
+				{/if}
+			</Button>
+		</Popover.Trigger>
+		<Popover.Content class="w-auto p-0" align="start">
+			<RangeCalendar
+				bind:value
+				bind:startValue
+				initialFocus
+				numberOfMonths={2}
+				placeholder={value?.start}
+			/>
+		</Popover.Content>
+	</Popover.Root>
+</div>
