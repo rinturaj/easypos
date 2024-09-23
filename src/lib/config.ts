@@ -23,7 +23,7 @@ export type Route = {
 	variant: 'default' | 'ghost';
 };
 
-export const salesRoutes: Route[] = [
+export const route: Route[] = [
 	{
 		title: 'Overview',
 		label: '',
@@ -39,63 +39,24 @@ export const salesRoutes: Route[] = [
 		variant: 'ghost'
 	},
 	{
-		title: 'Oil Sales',
+		title: 'Margin',
 		label: '',
 		link: base + '/dashboard/oilsales',
 		icon: Droplet,
 		variant: 'ghost'
 	},
 	{
-		title: 'Expenses ',
+		title: 'Inventory ',
 		label: '',
 		link: base + '/dashboard/expenses',
 		icon: DollarSign,
 		variant: 'ghost'
 	},
 	{
-		title: 'Credit ',
+		title: 'Category ',
 		label: '',
 		link: base + '/dashboard/credit',
 		icon: CreditCard,
-		variant: 'ghost'
-	}
-];
-export const primaryRoutes: Route[] = [
-	{
-		title: 'Stock',
-		label: '',
-		link: base + '/dashboard/stock',
-		icon: Box,
-		variant: 'ghost'
-	},
-	{
-		title: 'Oil Stock',
-		label: '',
-		link: base + '/dashboard/oilstock',
-
-		icon: PaintBucket,
-		variant: 'ghost'
-	},
-	{
-		title: 'Staff',
-		label: '',
-		link: base + '/dashboard/staff',
-
-		icon: Icons.Users,
-		variant: 'ghost'
-	},
-	{
-		title: 'Nosil',
-		label: '',
-		link: base + '/dashboard/nosil',
-		icon: Fuel,
-		variant: 'ghost'
-	},
-	{
-		title: 'Miscellaneous',
-		label: '',
-		link: base + '/dashboard/misc',
-		icon: UtilityPole,
 		variant: 'ghost'
 	}
 ];

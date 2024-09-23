@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Aside from './Aside.svelte';
+
 	import ChevronLeft from 'lucide-svelte/icons/chevron-left';
 	import ChevronRight from 'lucide-svelte/icons/chevron-right';
 	import Copy from 'lucide-svelte/icons/copy';
@@ -28,19 +30,50 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import { Home, LineChart } from 'lucide-svelte';
-	import Aside from '../../lib/components/custom/Aside.svelte';
-	import Header from '../../lib/components/custom/Header.svelte';
+	import { Home, LineChart, User2, UserCircle } from 'lucide-svelte';
+	import Nav from './Nav.svelte';
 </script>
 
-<div class="flex min-h-screen w-full flex-col bg-muted/40">
-	<Aside></Aside>
-	<div class="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-		<Header></Header>
-		<main
-			class="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3"
-		>
-			<slot></slot>
-		</main>
+<header
+	class="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6"
+>
+	<Sheet.Root>
+		<Sheet.Trigger asChild let:builder>
+			<Button builders={[builder]} size="icon" variant="outline" class="sm:hidden">
+				<PanelLeft class="h-5 w-5" />
+				<span class="sr-only">Toggle Menu</span>
+			</Button>
+		</Sheet.Trigger>
+		<Sheet.Content side="left" class="sm:max-w-xs">
+			<Nav></Nav>
+		</Sheet.Content>
+	</Sheet.Root>
+
+	<div class="relative ml-auto flex-1 md:grow-0">
+		<Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+		<Input
+			type="search"
+			placeholder="Search..."
+			class="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+		/>
 	</div>
-</div>
+	<DropdownMenu.Root>
+		<DropdownMenu.Trigger asChild let:builder>
+			<Button
+				variant="outline"
+				size="icon"
+				class="overflow-hidden rounded-full"
+				builders={[builder]}
+			>
+				<UserCircle></UserCircle>
+			</Button>
+		</DropdownMenu.Trigger>
+		<DropdownMenu.Content align="end">
+			<DropdownMenu.Label>My Account</DropdownMenu.Label>
+			<DropdownMenu.Separator />
+			<!-- <DropdownMenu.Item>Settings</DropdownMenu.Item> -->
+
+			<DropdownMenu.Item>Logout</DropdownMenu.Item>
+		</DropdownMenu.Content>
+	</DropdownMenu.Root>
+</header>
