@@ -1,12 +1,8 @@
 <script lang="ts">
-	import Package from 'lucide-svelte/icons/package';
 	import Package2 from 'lucide-svelte/icons/package-2';
 	import Settings from 'lucide-svelte/icons/settings';
-	import ShoppingCart from 'lucide-svelte/icons/shopping-cart';
-	import UsersRound from 'lucide-svelte/icons/users-round';
 
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import { Home, LineChart } from 'lucide-svelte';
 	import { route } from '../../config';
 </script>
 

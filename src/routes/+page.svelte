@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 
-	import Button from '../lib/components/ui/button/button.svelte';
 	import { db } from '../database/db';
 	import { onMount } from 'svelte';
 	import Input from '../lib/components/ui/input/input.svelte';
-	import Label from '../lib/components/ui/label/label.svelte';
 	import { cn } from '../lib/utils';
 	import { buttonVariants } from '../lib/components/ui/button';
 	import { LoginApi } from '../database/dbactivity';
 	import { goto } from '$app/navigation';
-	import { Beaker } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import { login } from '../lib/component.store';
 	// import { ipcRenderer } from 'electron';

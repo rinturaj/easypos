@@ -31,7 +31,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { Home, LineChart, User2, UserCircle } from 'lucide-svelte';
-	import Nav from './Nav.svelte';
+	import Nav from './navbar.svelte';
 </script>
 
 <header
