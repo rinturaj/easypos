@@ -13,8 +13,9 @@ import type {
 } from './model';
 import { browser } from '$app/environment';
 import 'dexie-observable';
+import dexieCloud from 'dexie-cloud-addon';
 
-const db = new Dexie('petromax') as Dexie & {
+const db = new Dexie('petromax', { addons: [dexieCloud] }) as Dexie & {
 	userAccount: EntityTable<UserAccount, 'id'>;
 	price: EntityTable<Price, 'id'>;
 	staff: EntityTable<Staff, 'id'>;
@@ -29,25 +30,30 @@ const db = new Dexie('petromax') as Dexie & {
 
 // Schema declaration:
 db.version(1).stores({
-	userAccount: '++id, email, name, password,[email+password]',
-	staff: '++id, name, status',
-	price: '++id, petrol,deisel',
-	nosil: '++id, type, name,[type+name]',
-	stock: '++id, stockDate, type,[stockDate+type]',
-	sales: '++id, salesDate, employeeName,[salesDate+employeeName]',
-	oilsales: '++id, salesDate, employeeName,[salesDate+employeeName]',
-	expenses: '++id, title, createdOn',
-	credit: '++id, vehicle, phoneNumber,[vehicle+type],createdOn',
-	oil: '++id, name,size, unitPrice,createdOn'
+	userAccount: '@id, email, name, password,[email+password]',
+	staff: '@id, name, status',
+	price: '@id, petrol,deisel',
+	nosil: '@id, type, name,[type+name]',
+	stock: '@id, stockDate, type,[stockDate+type]',
+	sales: '@id, salesDate, employeeName,[salesDate+employeeName]',
+	oilsales: '@id, salesDate, employeeName,[salesDate+employeeName]',
+	expenses: '@id, title, createdOn',
+	credit: '@id, vehicle, phoneNumber,[vehicle+type],createdOn',
+	oil: '@id, name,size, unitPrice,createdOn'
+});
+
+db.cloud.configure({
+	databaseUrl: 'https://zm8024r62.dexie.cloud',
+	requireAuth: false // optional
 });
 
 db.transaction('rw', db.price, function (price) {
 	console.log('wrote');
 });
 
-db.on('changes', function (changes) {
-	if ((window as any).electron) (window as any).electron.syncDatabase(changes);
-});
+// db.on('changes', function (changes) {
+// 	// if ((window as any).electron) (window as any).electron.syncDatabase(changes);
+// });
 
 export const persist = async () => {
 	if (browser) {

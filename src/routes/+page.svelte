@@ -16,12 +16,16 @@
 	// import { ipcRenderer } from 'electron';
 
 	onMount(async () => {
-		db.userAccount.add({
-			id: 1,
-			email: 'admin',
-			password: '1122',
-			name: 'admin'
-		});
+		const admin = await db.userAccount.where('email').equals('admin').toArray();
+		console.log(admin);
+
+		if (admin.length <= 0) {
+			db.userAccount.add({
+				email: 'admin',
+				password: '1122',
+				name: 'admin'
+			});
+		}
 	});
 	let email = '';
 	let password = '';
@@ -67,9 +71,9 @@
 
 						let logged = await LoginApi.login(email, password);
 						if (logged) {
-							goto(base + '/dashboard/overview');
+							goto(base + '/dashboard/');
 							login();
-							toast.success('Welcome to Petromax ');
+							toast.success('Welcome to EasyPos ');
 						} else {
 							toast.error('Invalid Credentials ', {
 								description: 'Your email or password is invalid. Please try again'
