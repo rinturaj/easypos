@@ -1,18 +1,10 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import { componentSide } from '../../component.store';
-	import Button from '../ui/button/button.svelte';
-	import Separator from '../ui/separator/separator.svelte';
 	import ScrollArea from '../ui/scroll-area/scroll-area.svelte';
-	import { Description } from '../ui/dialog';
 	import Badge from '../ui/badge/badge.svelte';
 	import type { SaleModel } from '../../../database/model';
 	import { DateFormatter } from '@internationalized/date';
-	import { format } from 'date-fns';
 
 	export let data: SaleModel;
 

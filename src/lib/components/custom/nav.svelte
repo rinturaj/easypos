@@ -1,76 +1,60 @@
 <script lang="ts">
-	import type { Route } from '../../config';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { cn } from '$lib/utils.js';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import { navigating } from '$app/stores';
-	import { page } from '$app/stores';
+	import Package from 'lucide-svelte/icons/package';
+	import Package2 from 'lucide-svelte/icons/package-2';
+	import Settings from 'lucide-svelte/icons/settings';
+	import ShoppingCart from 'lucide-svelte/icons/shopping-cart';
+	import UsersRound from 'lucide-svelte/icons/users-round';
 
-	export let isCollapsed: boolean;
-	export let routes: Route[];
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import { Home, LineChart } from 'lucide-svelte';
+	import { route } from '../../config';
 </script>
 
-<div
-	data-collapsed={isCollapsed}
-	class="group flex flex-col justify-between gap-4 py-2 data-[collapsed=true]:py-2"
->
-	<nav
-		class="block grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2"
+<nav class="flex flex-col gap-4 px-2 py-4 md:items-center">
+	<a
+		href="##"
+		class="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
 	>
-		{#each routes as route}
-			{#if isCollapsed}
-				<Tooltip.Root openDelay={0}>
-					<Tooltip.Trigger asChild let:builder>
-						<Button
-							href={route.link}
-							builders={[builder]}
-							variant={$page.url.pathname == 'dashboard/' + route.link ? 'default' : 'ghost'}
-							size="icon"
-							class={cn(
-								'size-9',
-								($page.url.pathname == 'dashboard/' + route.link ? 'default' : 'ghost') ===
-									'default' &&
-									'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white'
-							)}
-						>
-							<svelte:component this={route.icon} class="size-4" aria-hidden="true" />
-							<span class="sr-only">{route.title}</span>
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content side="right" class="flex items-center gap-4">
-						{route.title}
-						{#if route.label}
-							<span class="ml-auto text-muted-foreground">
-								{route.label}
-							</span>
-						{/if}
-					</Tooltip.Content>
-				</Tooltip.Root>
-			{:else}
-				<Button
-					href={route.link}
-					variant={$page.url.pathname == route.link ? 'default' : 'ghost'}
-					size="sm"
-					class={cn('justify-start', {
-						'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white':
-							($page.url.pathname == route.link ? 'default' : 'ghost') === 'default'
-					})}
+		<Package2 class="h-4 w-4 transition-all group-hover:scale-110" />
+		<span class="sr-only">Simple Pos</span>
+	</a>
+	{#each route as r}
+		<Tooltip.Root>
+			<Tooltip.Trigger asChild let:builder>
+				<div class="flex items-center justify-start align-middle">
+					<a
+						href={r.link}
+						class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+						use:builder.action
+						{...builder}
+					>
+						<svelte:component this={r.icon} class="h-5 w-5" aria-hidden="true" />
+
+						<span class="sr-only">{r.title}</span>
+					</a>
+					<span class="text-lg font-semibold sm:hidden">{r.title}</span>
+				</div>
+			</Tooltip.Trigger>
+			<Tooltip.Content side="right">Dashboard</Tooltip.Content>
+		</Tooltip.Root>
+	{/each}
+</nav>
+<nav class="mt-auto flex flex-col gap-4 px-2 py-4 md:items-center">
+	<Tooltip.Root>
+		<Tooltip.Trigger asChild let:builder>
+			<div class="flex items-center justify-start align-middle">
+				<a
+					href="#"
+					class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+					use:builder.action
+					{...builder}
 				>
-					<svelte:component this={route.icon} class="mr-2 size-4" aria-hidden="true" />
-					{route.title}
-					{#if route.label}
-						<span
-							class={cn('ml-auto', {
-								'text-background dark:text-white':
-									($page.url.pathname == 'dashboard/' + route.link ? 'default' : 'ghost') ===
-									'default'
-							})}
-						>
-							{route.label}
-						</span>
-					{/if}
-				</Button>
-			{/if}
-		{/each}
-	</nav>
-</div>
+					<Settings class="h-5 w-5" />
+					<span class="sr-only">Settings</span>
+				</a>
+				<span class="text-lg font-semibold sm:hidden">Settings</span>
+			</div>
+		</Tooltip.Trigger>
+		<Tooltip.Content side="right">Settings</Tooltip.Content>
+	</Tooltip.Root>
+</nav>
