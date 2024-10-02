@@ -1,32 +1,13 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
-	import { db } from '../database/db';
-	import { onMount } from 'svelte';
-	import Input from '../lib/components/ui/input/input.svelte';
-	import { cn } from '../lib/utils';
-	import { buttonVariants } from '../lib/components/ui/button';
-	import { LoginApi } from '../database/dbactivity';
 	import { goto } from '$app/navigation';
-	import { toast } from 'svelte-sonner';
-	import { login } from '../lib/component.store';
-	// import { ipcRenderer } from 'electron';
+	import { db } from '../database/db';
+	import Button from '../lib/components/ui/button/button.svelte';
 
-	onMount(async () => {
-		const admin = await db.userAccount.where('email').equals('admin').toArray();
-		console.log(admin);
-
-		if (admin.length <= 0) {
-			db.userAccount.add({
-				email: 'admin',
-				password: '1122',
-				name: 'admin'
-			});
-		}
-	});
-	let email = '';
-	let password = '';
-	let disabled = true;
+	async function login() {
+		db.cloud.currentUser.subscribe((data) => {
+			if (data.isLoggedIn) goto('/dashboard');
+		});
+	}
 </script>
 
 <div
@@ -52,32 +33,7 @@
 			<div class="flex flex-col space-y-2 text-center">
 				<h1 class="text-2xl font-semibold tracking-tight">Please Login</h1>
 				<p class="text-sm text-muted-foreground">Enter your email and password below to login</p>
-
-				<!-- <Label class="text-left">Email</Label> -->
-				<Input placeholder="email" bind:value={email}></Input>
-				<!-- <Label class="text-left">password</Label> -->
-				<Input placeholder="password" bind:value={password}></Input>
-				<button
-					class={cn(
-						buttonVariants({ variant: 'default' }),
-						(!email || !password) && 'pointer-events-none opacity-50'
-					)}
-					on:click={async () => {
-						console.log('clicked');
-						// ipcRenderer.send('ping-good', 'ping');
-
-						let logged = await LoginApi.login(email, password);
-						if (logged) {
-							goto(base + '/dashboard/');
-							login();
-							toast.success('Welcome to EasyPos ');
-						} else {
-							toast.error('Invalid Credentials ', {
-								description: 'Your email or password is invalid. Please try again'
-							});
-						}
-					}}>Login</button
-				>
+				<Button class="" on:click={login}>Login</Button>
 			</div>
 		</div>
 	</div>

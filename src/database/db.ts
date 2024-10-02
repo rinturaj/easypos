@@ -15,7 +15,7 @@ import { browser } from '$app/environment';
 import 'dexie-observable';
 import dexieCloud from 'dexie-cloud-addon';
 
-const db = new Dexie('petromax', { addons: [dexieCloud] }) as Dexie & {
+const db = new Dexie('easypos', { addons: [dexieCloud] }) as Dexie & {
 	userAccount: EntityTable<UserAccount, 'id'>;
 	price: EntityTable<Price, 'id'>;
 	staff: EntityTable<Staff, 'id'>;
@@ -44,7 +44,7 @@ db.version(1).stores({
 
 db.cloud.configure({
 	databaseUrl: 'https://zm8024r62.dexie.cloud',
-	requireAuth: false // optional
+	requireAuth: true // optional
 });
 
 db.transaction('rw', db.price, function (price) {
