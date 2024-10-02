@@ -1,29 +1,14 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 
-	import { db } from '../database/db';
 	import { onMount } from 'svelte';
 	import Input from '../lib/components/ui/input/input.svelte';
 	import { cn } from '../lib/utils';
 	import { buttonVariants } from '../lib/components/ui/button';
-	import { LoginApi } from '../database/dbactivity';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { login } from '../lib/component.store';
-	// import { ipcRenderer } from 'electron';
 
-	onMount(async () => {
-		const admin = await db.userAccount.where('email').equals('admin').toArray();
-		console.log(admin);
-
-		if (admin.length <= 0) {
-			db.userAccount.add({
-				email: 'admin',
-				password: '1122',
-				name: 'admin'
-			});
-		}
-	});
 	let email = '';
 	let password = '';
 	let disabled = true;
@@ -66,16 +51,16 @@
 						console.log('clicked');
 						// ipcRenderer.send('ping-good', 'ping');
 
-						let logged = await LoginApi.login(email, password);
-						if (logged) {
-							goto(base + '/dashboard/');
-							login();
-							toast.success('Welcome to EasyPos ');
-						} else {
-							toast.error('Invalid Credentials ', {
-								description: 'Your email or password is invalid. Please try again'
-							});
-						}
+						// let logged = await LoginApi.login(email, password);
+						// if (logged) {
+						// 	goto(base + '/dashboard/');
+						// 	login();
+						// 	toast.success('Welcome to EasyPos ');
+						// } else {
+						// 	toast.error('Invalid Credentials ', {
+						// 		description: 'Your email or password is invalid. Please try again'
+						// 	});
+						// }
 					}}>Login</button
 				>
 			</div>
