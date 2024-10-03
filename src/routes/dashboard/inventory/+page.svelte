@@ -11,7 +11,7 @@
 <Tabs.Root value="overview">
 	<Tabs.List class="grid grid-cols-2 md:w-[400px]">
 		<Tabs.Trigger value="overview">Overview</Tabs.Trigger>
-		<Tabs.Trigger value="stocklist">Stock List</Tabs.Trigger>
+		<Tabs.Trigger value="stocklist">Purchase</Tabs.Trigger>
 	</Tabs.List>
 	<Tabs.Content value="overview">
 		<StockOverview></StockOverview>

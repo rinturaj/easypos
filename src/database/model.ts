@@ -38,6 +38,12 @@ export interface ProductStock extends Product {
 	purchasedOn: Date;
 }
 
+export interface StockOverview extends Product {
+	averagePrice: number;
+	currentQuantity: number;
+	productId: string;
+}
+
 export interface ProductMargin {
 	id: string;
 	productId: string;

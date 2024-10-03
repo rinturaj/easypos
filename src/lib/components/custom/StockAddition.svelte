@@ -53,7 +53,7 @@
 
 <!-- <Card.Root> -->
 <Card.Header>
-	<Card.Title>Stock Update/Insert</Card.Title>
+	<Card.Title>Product Purchase Update/Insert</Card.Title>
 </Card.Header>
 <Card.Content>
 	<div class="grid gap-6">

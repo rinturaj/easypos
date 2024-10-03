@@ -3,12 +3,14 @@ import type { Product, ProductMargin, ProductStock, UserAccount } from './model'
 import { browser } from '$app/environment';
 import 'dexie-observable';
 import dexieCloud from 'dexie-cloud-addon';
+import type StockOverview from '../lib/components/custom/StockOverview.svelte';
 
 const db = new Dexie('easypos', { addons: [dexieCloud] }) as Dexie & {
 	userAccount: EntityTable<UserAccount, 'id'>;
 	product: EntityTable<Product, 'id'>;
 	productMargin: EntityTable<ProductMargin, 'id'>;
 	productStock: EntityTable<ProductStock, 'id'>;
+	stockOverview: EntityTable<StockOverview, 'id'>;
 };
 
 // Schema declaration:
@@ -16,7 +18,8 @@ db.version(1).stores({
 	userAccount: '@id, email, name, password,[email+password]',
 	product: '@id, createdOn, name',
 	productMargin: '@id, createdOn, name',
-	productStock: '@id, createdOn, name,purchasedOn'
+	productStock: '@id, createdOn, name,purchasedOn',
+	stockOverview: '@id, createdOn, name ,averagePrice, currentQuantity'
 });
 
 db.cloud.configure({

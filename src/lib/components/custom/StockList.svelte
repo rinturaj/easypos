@@ -11,6 +11,7 @@
 	import { Edit, Trash2 } from 'lucide-svelte';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import StockAddition from './StockAddition.svelte';
+	import { toNumber } from '../../utils';
 
 	let onDelete = false;
 	let onDeleteProduct: ProductStock;
@@ -27,7 +28,7 @@
 <div class="grid grid-cols-1 gap-2">
 	<Card.Root class="">
 		<Card.Header class="pb-3">
-			<Card.Title>Your Stock</Card.Title>
+			<Card.Title>Your Purchase Order</Card.Title>
 			<Card.Description class="max-w-lg text-balance leading-relaxed">
 				Introducing Our Dynamic Orders Dashboard for Seamless Management and Insightful Analysis.
 			</Card.Description>
@@ -37,7 +38,7 @@
 				on:click={() => {
 					componentSide.set(StockAddition);
 					componentData.set(null);
-				}}>Create New Stock</Button
+				}}>New Purchase</Button
 			>
 		</Card.Footer>
 	</Card.Root>
@@ -75,6 +76,10 @@
 								</Table.Cell>
 								<Table.Cell class="text-right"
 									><div class="flex items-center justify-end space-x-2">
+										<h6 class="currency px-2 text-sm">
+											{toNumber(p.purchaseRate / p.quantity)}/ {p.unit}
+										</h6>
+
 										<Button
 											on:click={() => {
 												view(p);
