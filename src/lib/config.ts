@@ -1,18 +1,5 @@
-import {
-	Box,
-	ChartPie,
-	CreditCard,
-	DollarSign,
-	Droplet,
-	icons,
-	UtilityPole,
-	type Icon
-} from 'lucide-svelte';
+import { Box, ChartPie, DollarSign, Percent, Tag, type Icon } from 'lucide-svelte';
 import type { ComponentType } from 'svelte';
-import * as Icons from './icons';
-import { Boxes } from 'lucide-svelte';
-import { Fuel } from 'lucide-svelte';
-import { PaintBucket } from 'lucide-svelte';
 import { base } from '$app/paths';
 
 export type Route = {
@@ -35,28 +22,28 @@ export const route: Route[] = [
 		title: 'Sales',
 		label: '',
 		link: base + '/dashboard/sales',
-		icon: Box,
+		icon: DollarSign,
 		variant: 'ghost'
 	},
 	{
 		title: 'Margin',
 		label: '',
-		link: base + '/dashboard/oilsales',
-		icon: Droplet,
+		link: base + '/dashboard/margin',
+		icon: Percent,
 		variant: 'ghost'
 	},
 	{
 		title: 'Inventory ',
 		label: '',
-		link: base + '/dashboard/expenses',
-		icon: DollarSign,
+		link: base + '/dashboard/inventory',
+		icon: Box,
 		variant: 'ghost'
 	},
 	{
-		title: 'Category ',
+		title: 'Products ',
 		label: '',
-		link: base + '/dashboard/credit',
-		icon: CreditCard,
+		link: base + '/dashboard/products',
+		icon: Tag,
 		variant: 'ghost'
 	}
 ];

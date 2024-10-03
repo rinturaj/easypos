@@ -4,6 +4,7 @@
 
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { route } from '../../config';
+	import { sheetOpen } from '../../component.store';
 </script>
 
 <nav class="flex flex-col gap-4 px-2 py-4 md:items-center">
@@ -19,6 +20,11 @@
 			<Tooltip.Trigger asChild let:builder>
 				<div class="flex items-center justify-start align-middle">
 					<a
+						on:click={() => {
+							console.log();
+
+							sheetOpen.set(false);
+						}}
 						href={r.link}
 						class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
 						use:builder.action
@@ -28,10 +34,18 @@
 
 						<span class="sr-only">{r.title}</span>
 					</a>
-					<span class="text-lg font-semibold sm:hidden">{r.title}</span>
+					<a
+						on:click={() => {
+							console.log('oepn');
+							sheetOpen.set(false);
+						}}
+						href={r.link}
+					>
+						<span class="text-lg font-semibold sm:hidden">{r.title}</span>
+					</a>
 				</div>
 			</Tooltip.Trigger>
-			<Tooltip.Content side="right">Dashboard</Tooltip.Content>
+			<Tooltip.Content side="right">{r.title}</Tooltip.Content>
 		</Tooltip.Root>
 	{/each}
 </nav>

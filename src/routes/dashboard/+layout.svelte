@@ -1,46 +1,26 @@
 <script lang="ts">
-	import ChevronLeft from 'lucide-svelte/icons/chevron-left';
-	import ChevronRight from 'lucide-svelte/icons/chevron-right';
-	import Copy from 'lucide-svelte/icons/copy';
-	import CreditCard from 'lucide-svelte/icons/credit-card';
-	import File from 'lucide-svelte/icons/file';
-	import ListFilter from 'lucide-svelte/icons/list-filter';
-	import EllipsisVertical from 'lucide-svelte/icons/ellipsis-vertical';
-	import Package from 'lucide-svelte/icons/package';
-	import Package2 from 'lucide-svelte/icons/package-2';
-	import PanelLeft from 'lucide-svelte/icons/panel-left';
-	import Search from 'lucide-svelte/icons/search';
-	import Settings from 'lucide-svelte/icons/settings';
-	import ShoppingCart from 'lucide-svelte/icons/shopping-cart';
-	import Truck from 'lucide-svelte/icons/truck';
-	import UsersRound from 'lucide-svelte/icons/users-round';
-
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import * as Pagination from '$lib/components/ui/pagination/index.js';
-	import { Progress } from '$lib/components/ui/progress/index.js';
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
-	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import { Home, LineChart } from 'lucide-svelte';
 	import Aside from '../../lib/components/custom/Aside.svelte';
 	import Header from '../../lib/components/custom/Header.svelte';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { componentData, componentSide } from '../../lib/component.store';
+	import ScrollArea from '../../lib/components/ui/scroll-area/scroll-area.svelte';
+	import Button from '../../lib/components/ui/button/button.svelte';
 </script>
 
 <div class="flex min-h-screen w-full flex-col bg-muted/40">
 	<Aside></Aside>
 	<div class="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
 		<Header></Header>
-		<main
-			class="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3"
-		>
+		<main class="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
 			<slot></slot>
 		</main>
 	</div>
 </div>
+
+<Dialog.Root open={$componentSide != null} closeOnOutsideClick={false} closeOnEscape={false}>
+	<Dialog.Content class="max-w-5xl p-2 ">
+		<ScrollArea class="max-h-screen min-h-96 p-2">
+			<svelte:component this={$componentSide} data={$componentData} />
+		</ScrollArea>
+	</Dialog.Content>
+</Dialog.Root>
