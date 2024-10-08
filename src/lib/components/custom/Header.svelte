@@ -6,14 +6,14 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { UserCircle } from 'lucide-svelte';
-	import Nav from './navbar.svelte';
+	import Navbar from './navbar.svelte';
 	import { sheetOpen } from '../../component.store';
 </script>
 
 <header
 	class="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6"
 >
-	<Sheet.Root>
+	<Sheet.Root bind:open={$sheetOpen}>
 		<Sheet.Trigger asChild let:builder>
 			<Button builders={[builder]} size="icon" variant="outline" class="sm:hidden">
 				<PanelLeft class="h-5 w-5" />
@@ -21,7 +21,7 @@
 			</Button>
 		</Sheet.Trigger>
 		<Sheet.Content side="left" class="sm:max-w-xs">
-			<Nav></Nav>
+			<Navbar></Navbar>
 		</Sheet.Content>
 	</Sheet.Root>
 
