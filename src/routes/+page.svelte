@@ -4,6 +4,7 @@
 	import Button from '../lib/components/ui/button/button.svelte';
 
 	async function login() {
+		db.cloud.login();
 		db.cloud.currentUser.subscribe((data) => {
 			if (data.isLoggedIn) goto('/dashboard');
 		});

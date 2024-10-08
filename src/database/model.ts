@@ -44,11 +44,7 @@ export interface StockOverview extends Product {
 	productId: string;
 }
 
-export interface ProductMargin {
-	id: string;
-	productId: string;
-	createdOn: Date;
-	updatedOn: Date;
+export interface ProductMargin extends StockOverview {
 	margin: number;
 	marginType: 'Percent' | 'Price';
 }
