@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { db } from '../database/db';
 	import Button from '../lib/components/ui/button/button.svelte';
 
 	async function login() {
 		db.cloud.login();
 		db.cloud.currentUser.subscribe((data) => {
-			if (data.isLoggedIn) goto('/dashboard');
+			if (data.isLoggedIn) goto(base + '/dashboard');
 		});
 	}
 </script>
