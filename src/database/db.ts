@@ -1,9 +1,8 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type { Product, ProductMargin, ProductStock, UserAccount } from './model';
+import type { Product, ProductMargin, ProductStock, StockOverview, UserAccount } from './model';
 import { browser } from '$app/environment';
 import 'dexie-observable';
 import dexieCloud from 'dexie-cloud-addon';
-import type StockOverview from '../lib/components/custom/StockOverview.svelte';
 
 const db = new Dexie('easypos', { addons: [dexieCloud] }) as Dexie & {
 	userAccount: EntityTable<UserAccount, 'id'>;

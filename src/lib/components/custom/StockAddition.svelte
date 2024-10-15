@@ -25,7 +25,8 @@
 		unit: 'gram',
 		purchasedOn: new Date(),
 		purchaseRate: 0,
-		quantity: 0
+		quantity: 0,
+		remainingQty: 0
 	};
 
 	$: if (!!data) {
@@ -117,11 +118,14 @@
 			newData.quantity == 0 ||
 			newData.purchasedOn == null}
 		on:click={() => {
+			newData.remainingQty = newData.quantity;
 			if (newData.id == '') delete newData.id;
 			console.log(newData);
 			if (newData.id == undefined) db.productStock.add(newData);
 			else db.productStock.update(newData.id, { ...newData });
+
 			toast.success('Stock  added successfully');
+
 			componentSide.set(null);
 		}}
 		variant="default">Submit</Button
