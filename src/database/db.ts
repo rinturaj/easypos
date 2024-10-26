@@ -18,7 +18,7 @@ db.version(1).stores({
 	product: '@id, createdOn, name',
 	productMargin: '@id, createdOn, name',
 	productStock: '@id, createdOn, name,purchasedOn',
-	stockOverview: '@id, createdOn, name ,averagePrice, currentQuantity'
+	stockOverview: '@id, createdOn, name ,averagePrice, currentQuantity,productId'
 });
 
 db.cloud.configure({

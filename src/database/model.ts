@@ -94,7 +94,10 @@ export class StockOverviewClass implements StockOverview {
 	}
 }
 
-export interface ProductMargin extends StockOverview {
+export interface ProductMargin {
+	id?: string;
+	stockOverview: string;
 	margin: number;
 	marginType: 'Percent' | 'Price';
+	stock: StockOverview | undefined;
 }

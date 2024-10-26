@@ -3,9 +3,8 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { liveQuery } from 'dexie';
-	import { df, type Product, type ProductStock } from '../../../database/model';
-	import { componentData, componentSide, sheetOpen } from '../../../lib/component.store';
-	import AddProducts from '../../../lib/components/custom/AddProducts.svelte';
+	import { df, type ProductStock } from '../../../database/model';
+	import { componentData, componentSide } from '../../../lib/component.store';
 	import Badge from '../../../lib/components/ui/badge/badge.svelte';
 	import { db } from '../../../database/db';
 	import { Edit, Trash2 } from 'lucide-svelte';
@@ -16,7 +15,11 @@
 	let onDelete = false;
 	let onDeleteProduct: ProductStock;
 	$: productStocks = liveQuery(async () => {
-		return await db.productStock.toArray();
+		return await db.productStock
+			.orderBy('purchasedOn')
+			.reverse()
+			.filter((x) => x.remainingQty > 0)
+			.toArray();
 	});
 
 	function view(p: ProductStock) {

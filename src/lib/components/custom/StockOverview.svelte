@@ -21,9 +21,11 @@
 	async function stockOverview(p: Product, s: StockOverview[]) {
 		console.log(p);
 
-		toast.info('Updating Stock overview ');
-
-		let stock = await db.productStock.where('name').equals(p.name).toArray();
+		let stock = await db.productStock
+			.where('name')
+			.equals(p.name)
+			.filter((x) => x.remainingQty > 0)
+			.toArray();
 		let overview = getStockOverview(p, s);
 		if (!overview) {
 			overview = new StockOverviewClass({
