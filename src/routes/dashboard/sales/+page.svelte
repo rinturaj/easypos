@@ -1,236 +1,353 @@
 <script lang="ts">
-	import ChevronLeft from 'lucide-svelte/icons/chevron-left';
-	import ChevronRight from 'lucide-svelte/icons/chevron-right';
-	import Copy from 'lucide-svelte/icons/copy';
-	import CreditCard from 'lucide-svelte/icons/credit-card';
-	import EllipsisVertical from 'lucide-svelte/icons/ellipsis-vertical';
-	import Truck from 'lucide-svelte/icons/truck';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import * as Pagination from '$lib/components/ui/pagination/index.js';
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import Keyboard from 'svelte-keyboard';
-	import ScrollArea from '../../../lib/components/ui/scroll-area/scroll-area.svelte';
-	const onKeydown = (event: any) => {
-		console.log(event.detail);
-	};
+	// Import shadcn components
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import {
+		Select,
+		SelectTrigger,
+		SelectValue,
+		SelectContent,
+		SelectItem
+	} from '$lib/components/ui/select';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Badge } from '$lib/components/ui/badge';
+	import {
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow
+	} from '$lib/components/ui/table';
+	import { Separator } from '$lib/components/ui/separator';
+	import { Search, Plus, ChevronLeft, ChevronRight, Eye, Printer } from 'lucide-svelte';
+
+	// Mock data for demonstration purposes
+	let orders = [
+		{
+			id: 'ORD-001',
+			customer: 'John Doe',
+			date: '2025-03-09T14:30:00',
+			total: 42.99,
+			status: 'completed',
+			items: 3
+		},
+		{
+			id: 'ORD-002',
+			customer: 'Jane Smith',
+			date: '2025-03-09T13:15:00',
+			total: 27.5,
+			status: 'pending',
+			items: 2
+		},
+		{
+			id: 'ORD-003',
+			customer: 'Robert Johnson',
+			date: '2025-03-09T11:45:00',
+			total: 68.75,
+			status: 'completed',
+			items: 5
+		},
+		{
+			id: 'ORD-004',
+			customer: 'Emily Davis',
+			date: '2025-03-09T10:20:00',
+			total: 15.99,
+			status: 'cancelled',
+			items: 1
+		},
+		{
+			id: 'ORD-005',
+			customer: 'Michael Brown',
+			date: '2025-03-08T16:50:00',
+			total: 94.3,
+			status: 'completed',
+			items: 7
+		},
+		{
+			id: 'ORD-006',
+			customer: 'Lisa Wilson',
+			date: '2025-03-08T15:10:00',
+			total: 32.45,
+			status: 'pending',
+			items: 3
+		},
+		{
+			id: 'ORD-007',
+			customer: 'David Taylor',
+			date: '2025-03-08T09:05:00',
+			total: 56.2,
+			status: 'completed',
+			items: 4
+		},
+		{
+			id: 'ORD-008',
+			customer: 'Sarah Miller',
+			date: '2025-03-07T17:30:00',
+			total: 21.99,
+			status: 'completed',
+			items: 2
+		}
+	];
+
+	// Filter states
+	let searchTerm = '';
+	let statusFilter = 'all';
+	let dateFilter = 'all';
+	let sortOrder = 'newest';
+
+	// Derived state for filtered orders
+	$: filteredOrders = orders
+		.filter((order) => {
+			// Search filter
+			if (searchTerm && !order.id.toLowerCase().includes(searchTerm.toLowerCase())) {
+				return false;
+			}
+
+			// Status filter
+			if (statusFilter !== 'all' && order.status !== statusFilter) {
+				return false;
+			}
+
+			// Date filter
+			const orderDate = new Date(order.date);
+			const today = new Date();
+			const yesterday = new Date(today);
+			yesterday.setDate(yesterday.getDate() - 1);
+
+			if (dateFilter === 'today' && orderDate.toDateString() !== today.toDateString()) {
+				return false;
+			} else if (
+				dateFilter === 'yesterday' &&
+				orderDate.toDateString() !== yesterday.toDateString()
+			) {
+				return false;
+			} else if (dateFilter === 'thisWeek') {
+				const weekStart = new Date(today);
+				weekStart.setDate(today.getDate() - today.getDay());
+				if (orderDate < weekStart) {
+					return false;
+				}
+			}
+
+			return true;
+		})
+		.sort((a, b) => {
+			const dateA = new Date(a.date);
+			const dateB = new Date(b.date);
+			return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+		});
+
+	// Format currency
+	function formatCurrency(amount) {
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD'
+		}).format(amount);
+	}
+
+	// Format date
+	function formatDate(dateString) {
+		const date = new Date(dateString);
+		return date.toLocaleString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			hour: 'numeric',
+			minute: 'numeric',
+			hour12: true
+		});
+	}
+
+	// Pagination
+	let currentPage = 1;
+	let itemsPerPage = 4; // Reduced for mobile view
+	$: totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+	$: paginatedOrders = filteredOrders.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	);
+
+	function goToPage(page) {
+		currentPage = page;
+	}
+
+	// Toggle order details on mobile view
+	let expandedOrders = new Set();
+
+	function toggleOrderDetails(orderId) {
+		if (expandedOrders.has(orderId)) {
+			expandedOrders.delete(orderId);
+		} else {
+			expandedOrders.add(orderId);
+		}
+		expandedOrders = expandedOrders; // Trigger reactivity
+	}
 </script>
 
-<div class="grid grid-cols-1 gap-1 sm:grid-cols-1 md:grid-cols-3 xl:grid-cols-3">
-	<div class="col-span-2 grid grid-rows-2">
-		<div class="h-[40vh]">
-			<ScrollArea></ScrollArea>
-		</div>
-		<Card.Root>
-			<Card.Content class="p-6 text-sm">
-				<Keyboard
-					--background="black"
-					--color="white"
-					--border-radius="16px"
-					--font-family="monospace"
-					--font-weight="400"
-					--stroke-width="2px"
-					--active-background="lightgreen"
-					--active-color="black"
-					on:keydown={onKeydown}
-					noSwap={['Enter']}
-					custom={[
-						// Adding number keypad configuration
-						{ row: 0, value: '1' },
-						{ row: 0, value: '2' },
-						{ row: 0, value: '3' },
-						{ row: 0, value: '4' },
-						{ row: 0, value: '5' },
-						{ row: 0, value: '6' },
-						{ row: 0, value: '7' },
-						{ row: 0, value: '8' },
-						{ row: 0, value: '9' },
-						{ row: 0, value: '0' },
+<div class="container mx-auto max-w-md px-4 py-4">
+	<Card class="w-full">
+		<CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+			<CardTitle class="text-xl font-bold">Recent Orders</CardTitle>
+			<Button variant="default" size="sm" class="h-8 gap-1">
+				<Plus class="h-4 w-4" />
+				<span class="hidden sm:inline">New Order</span>
+			</Button>
+		</CardHeader>
 
-						{ row: 1, value: 'q' },
-						{ row: 1, value: 'w' },
-						{ row: 1, value: 'e' },
-						{ row: 1, value: 'r' },
-						{ row: 1, value: 't' },
-						{ row: 1, value: 'y' },
-						{ row: 1, value: 'u' },
-						{ row: 1, value: 'i' },
-						{ row: 1, value: 'o' },
-						{ row: 1, value: 'p' },
-
-						{ row: 2, value: 'a' },
-						{ row: 2, value: 's' },
-						{ row: 2, value: 'd' },
-						{ row: 2, value: 'f' },
-						{ row: 2, value: 'g' },
-						{ row: 2, value: 'h' },
-						{ row: 2, value: 'j' },
-						{ row: 2, value: 'k' },
-						{ row: 2, value: 'l' },
-
-						{ row: 3, value: 'z' },
-						{ row: 3, value: 'x' },
-						{ row: 3, value: 'c' },
-						{ row: 3, value: 'v' },
-						{ row: 3, value: 'b' },
-						{ row: 3, value: 'n' },
-						{ row: 3, value: 'm' },
-						{ row: 4, value: 'Backspace' },
-						{ row: 4, value: 'Space' },
-						{ row: 4, value: 'Enter' }
-					]}
+		<CardContent class="px-2 pt-4">
+			<!-- Search Bar -->
+			<div class="relative mb-4">
+				<Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+				<Input
+					type="text"
+					placeholder="Search by Order ID"
+					bind:value={searchTerm}
+					class="w-full pl-8"
 				/>
-			</Card.Content>
-		</Card.Root>
-	</div>
-	<div class="col-span-1">
-		<Card.Root class="w-full overflow-hidden">
-			<Card.Header class="flex flex-row items-start bg-muted/50">
-				<div class="grid gap-0.5">
-					<Card.Title class="group flex items-center gap-2 text-lg">
-						Order Oe31b70H
-						<Button
-							size="icon"
-							variant="outline"
-							class="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-						>
-							<Copy class="h-3 w-3" />
-							<span class="sr-only">Copy Order ID</span>
-						</Button>
-					</Card.Title>
-					<Card.Description>Date: November 23, 2023</Card.Description>
+			</div>
+
+			<!-- Filter Controls - Grid for mobile -->
+			<div class="mb-4 grid grid-cols-2 gap-2">
+				<div>
+					<Select bind:value={statusFilter}>
+						<SelectTrigger class="w-full">
+							<SelectValue placeholder="Status" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">All Statuses</SelectItem>
+							<SelectItem value="completed">Completed</SelectItem>
+							<SelectItem value="pending">Pending</SelectItem>
+							<SelectItem value="cancelled">Cancelled</SelectItem>
+						</SelectContent>
+					</Select>
 				</div>
-				<div class="ml-auto flex items-center gap-1">
-					<Button size="sm" variant="outline" class="h-8 gap-1">
-						<Truck class="h-3.5 w-3.5" />
-						<span class="lg:sr-only xl:not-sr-only xl:whitespace-nowrap"> Track Order </span>
+
+				<div>
+					<Select bind:value={dateFilter}>
+						<SelectTrigger class="w-full">
+							<SelectValue placeholder="Date" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">All Dates</SelectItem>
+							<SelectItem value="today">Today</SelectItem>
+							<SelectItem value="yesterday">Yesterday</SelectItem>
+							<SelectItem value="thisWeek">This Week</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+
+				<div class="col-span-2">
+					<Select bind:value={sortOrder}>
+						<SelectTrigger class="w-full">
+							<SelectValue placeholder="Sort by" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="newest">Newest First</SelectItem>
+							<SelectItem value="oldest">Oldest First</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+			</div>
+
+			<!-- Order Cards for Mobile -->
+			<div class="space-y-3">
+				{#if filteredOrders.length === 0}
+					<div class="py-6 text-center text-muted-foreground">
+						No orders found matching your filters.
+					</div>
+				{:else}
+					{#each paginatedOrders as order}
+						<Card class="w-full overflow-hidden">
+							<div
+								class="flex cursor-pointer items-center justify-between p-3"
+								on:click={() => toggleOrderDetails(order.id)}
+							>
+								<div>
+									<div class="font-medium">{order.id}</div>
+									<div class="text-sm text-muted-foreground">{formatDate(order.date)}</div>
+								</div>
+								<div class="flex flex-col items-end">
+									<div class="font-medium">{formatCurrency(order.total)}</div>
+									<Badge
+										variant={order.status === 'completed'
+											? 'success'
+											: order.status === 'pending'
+												? 'warning'
+												: 'destructive'}
+									>
+										{order.status}
+									</Badge>
+								</div>
+							</div>
+
+							{#if expandedOrders.has(order.id)}
+								<Separator />
+								<div class="bg-muted/30 p-3">
+									<div class="grid grid-cols-2 gap-2 text-sm">
+										<div class="text-muted-foreground">Customer:</div>
+										<div class="font-medium">{order.customer}</div>
+
+										<div class="text-muted-foreground">Items:</div>
+										<div class="font-medium">{order.items}</div>
+
+										<div class="text-muted-foreground">Date:</div>
+										<div class="font-medium">{formatDate(order.date)}</div>
+
+										<div class="text-muted-foreground">Total:</div>
+										<div class="font-medium">{formatCurrency(order.total)}</div>
+									</div>
+
+									<div class="mt-3 flex justify-end gap-2">
+										<Button variant="outline" size="sm" class="h-8 gap-1">
+											<Eye class="h-4 w-4" />
+											<span>View</span>
+										</Button>
+										<Button variant="outline" size="sm" class="h-8 gap-1">
+											<Printer class="h-4 w-4" />
+											<span>Print</span>
+										</Button>
+									</div>
+								</div>
+							{/if}
+						</Card>
+					{/each}
+				{/if}
+			</div>
+
+			<!-- Pagination for Mobile -->
+			{#if totalPages > 1}
+				<div class="mt-4 flex items-center justify-between">
+					<Button
+						variant="outline"
+						size="sm"
+						on:click={() => goToPage(Math.max(1, currentPage - 1))}
+						disabled={currentPage === 1}
+					>
+						<ChevronLeft class="h-4 w-4" />
 					</Button>
-					<DropdownMenu.Root>
-						<DropdownMenu.Trigger asChild let:builder>
-							<Button builders={[builder]} size="icon" variant="outline" class="h-8 w-8">
-								<EllipsisVertical class="h-3.5 w-3.5" />
-								<span class="sr-only">More</span>
-							</Button>
-						</DropdownMenu.Trigger>
-						<DropdownMenu.Content align="end">
-							<DropdownMenu.Item>Edit</DropdownMenu.Item>
-							<DropdownMenu.Item>Export</DropdownMenu.Item>
-							<DropdownMenu.Separator />
-							<DropdownMenu.Item>Trash</DropdownMenu.Item>
-						</DropdownMenu.Content>
-					</DropdownMenu.Root>
-				</div>
-			</Card.Header>
-			<Card.Content class="p-6 text-sm">
-				<div class="grid gap-3">
-					<div class="font-semibold">Order Details</div>
-					<ul class="grid gap-3">
-						<li class="flex items-center justify-between">
-							<span class="text-muted-foreground">
-								Glimmer Lamps x <span>2</span>
-							</span>
-							<span>$250.00</span>
-						</li>
-						<li class="flex items-center justify-between">
-							<span class="text-muted-foreground">
-								Aqua Filters x <span>1</span>
-							</span>
-							<span>$49.00</span>
-						</li>
-					</ul>
-					<Separator class="my-2" />
-					<ul class="grid gap-3">
-						<li class="flex items-center justify-between">
-							<span class="text-muted-foreground">Subtotal</span>
-							<span>$299.00</span>
-						</li>
-						<li class="flex items-center justify-between">
-							<span class="text-muted-foreground">Shipping</span>
-							<span>$5.00</span>
-						</li>
-						<li class="flex items-center justify-between">
-							<span class="text-muted-foreground">Tax</span>
-							<span>$25.00</span>
-						</li>
-						<li class="flex items-center justify-between font-semibold">
-							<span class="text-muted-foreground">Total</span>
-							<span>$329.00</span>
-						</li>
-					</ul>
-				</div>
-				<Separator class="my-4" />
-				<div class="grid grid-cols-2 gap-4">
-					<div class="grid gap-3">
-						<div class="font-semibold">Shipping Information</div>
-						<address class="grid gap-0.5 not-italic text-muted-foreground">
-							<span>Liam Johnson</span>
-							<span>1234 Main St.</span>
-							<span>Anytown, CA 12345</span>
-						</address>
+
+					<div class="text-sm">
+						Page {currentPage} of {totalPages}
 					</div>
-					<div class="grid auto-rows-max gap-3">
-						<div class="font-semibold">Billing Information</div>
-						<div class="text-muted-foreground">Same as shipping address</div>
-					</div>
+
+					<Button
+						variant="outline"
+						size="sm"
+						on:click={() => goToPage(Math.min(totalPages, currentPage + 1))}
+						disabled={currentPage === totalPages}
+					>
+						<ChevronRight class="h-4 w-4" />
+					</Button>
 				</div>
-				<Separator class="my-4" />
-				<div class="grid gap-3">
-					<div class="font-semibold">Customer Information</div>
-					<dl class="grid gap-3">
-						<div class="flex items-center justify-between">
-							<dt class="text-muted-foreground">Customer</dt>
-							<dd>Liam Johnson</dd>
-						</div>
-						<div class="flex items-center justify-between">
-							<dt class="text-muted-foreground">Email</dt>
-							<dd>
-								<a href="mailto:">liam@acme.com</a>
-							</dd>
-						</div>
-						<div class="flex items-center justify-between">
-							<dt class="text-muted-foreground">Phone</dt>
-							<dd>
-								<a href="tel:">+1 234 567 890</a>
-							</dd>
-						</div>
-					</dl>
-				</div>
-				<Separator class="my-4" />
-				<div class="grid gap-3">
-					<div class="font-semibold">Payment Information</div>
-					<dl class="grid gap-3">
-						<div class="flex items-center justify-between">
-							<dt class="flex items-center gap-1 text-muted-foreground">
-								<CreditCard class="h-4 w-4" />
-								Visa
-							</dt>
-							<dd>**** **** **** 4532</dd>
-						</div>
-					</dl>
-				</div>
-			</Card.Content>
-			<Card.Footer class="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-				<div class="text-xs text-muted-foreground">
-					Updated <time dateTime="2023-11-23">November 23, 2023</time>
-				</div>
-				<Pagination.Root count={10} class="ml-auto mr-0 w-auto">
-					<Pagination.Content>
-						<Pagination.Item>
-							<Button size="icon" variant="outline" class="h-6 w-6">
-								<ChevronLeft class="h-3.5 w-3.5" />
-								<span class="sr-only">Previous Order</span>
-							</Button>
-						</Pagination.Item>
-						<Pagination.Item>
-							<Button size="icon" variant="outline" class="h-6 w-6">
-								<ChevronRight class="h-3.5 w-3.5" />
-								<span class="sr-only">Next Order</span>
-							</Button>
-						</Pagination.Item>
-					</Pagination.Content>
-				</Pagination.Root>
-			</Card.Footer>
-		</Card.Root>
-	</div>
+			{/if}
+
+			<!-- Summary text -->
+			<div class="mt-2 text-center text-xs text-muted-foreground">
+				Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(
+					currentPage * itemsPerPage,
+					filteredOrders.length
+				)} of {filteredOrders.length} orders
+			</div>
+		</CardContent>
+	</Card>
 </div>

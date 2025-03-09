@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 </script>
 
 <Card.Root class="sm:col-span-2">
@@ -11,6 +13,8 @@
 		</Card.Description>
 	</Card.Header>
 	<Card.Footer>
-		<Button>Create New Order</Button>
+		<Button on:click={()=>{
+			goto(base+ '/dashboard/pos');
+		}}>Create New Order</Button>
 	</Card.Footer>
 </Card.Root>

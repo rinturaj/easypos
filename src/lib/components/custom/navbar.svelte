@@ -20,8 +20,6 @@
 				<div class="flex items-center justify-start align-middle">
 					<a
 						on:click={() => {
-							console.log();
-
 							sheetOpen.set(false);
 						}}
 						href={r.link}
