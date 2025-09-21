@@ -1,0 +1,19 @@
+{
+  "name": "POS System",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "POS App",
+      "onAutoForward": "notify",
+      "requireLocalPort": false,
+      "elevateIfNeeded": false
+    }
+  },
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["src/routes/dashboard/pos/+page.svelte"]
+    }
+  },
+  "postCreateCommand": "npm install",
+  "remoteUser": "node"
+}

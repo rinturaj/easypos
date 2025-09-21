@@ -1,0 +1,21 @@
+{
+  "$schema": "https://aka.ms/DevTunnelsSdkConfig",
+  "tunnel": {
+    "name": "pos-system-tunnel",
+    "protocol": "http",
+    "access": "public",
+    "ports": [
+      {
+        "port": 3000,
+        "protocol": "http",
+        "access": "public"
+      }
+    ]
+  },
+  "forwarding": {
+    "http": {
+      "enabled": true,
+      "webPort": 3000
+    }
+  }
+}

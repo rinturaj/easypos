@@ -1,353 +1,341 @@
 <script lang="ts">
-	// Import shadcn components
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
+	import { onMount } from 'svelte';
 	import {
-		Select,
-		SelectTrigger,
-		SelectValue,
-		SelectContent,
-		SelectItem
-	} from '$lib/components/ui/select';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Badge } from '$lib/components/ui/badge';
-	import {
-		Table,
-		TableBody,
-		TableCell,
-		TableHead,
-		TableHeader,
-		TableRow
-	} from '$lib/components/ui/table';
-	import { Separator } from '$lib/components/ui/separator';
-	import { Search, Plus, ChevronLeft, ChevronRight, Eye, Printer } from 'lucide-svelte';
+		ArrowDown,
+		ArrowUp,
+		Calendar,
+		ChevronDown,
+		Filter,
+		Menu,
+		Plus,
+		ShoppingBag
+	} from 'lucide-svelte';
+	import Chart from 'chart.js/auto';
 
-	// Mock data for demonstration purposes
-	let orders = [
+	// Sample data - in a real app, this would come from your backend
+	let totalSales = 12580.45;
+	let totalOrders = 156;
+	let averageOrderValue = totalSales / totalOrders;
+	let salesGrowth = 12.5; // percentage
+
+	let recentTransactions = [
 		{
-			id: 'ORD-001',
+			id: 'INV-001',
 			customer: 'John Doe',
-			date: '2025-03-09T14:30:00',
-			total: 42.99,
-			status: 'completed',
-			items: 3
+			amount: 125.5,
+			date: '2023-03-14 10:30 AM',
+			status: 'completed'
 		},
 		{
-			id: 'ORD-002',
+			id: 'INV-002',
 			customer: 'Jane Smith',
-			date: '2025-03-09T13:15:00',
-			total: 27.5,
-			status: 'pending',
-			items: 2
+			amount: 78.25,
+			date: '2023-03-14 09:15 AM',
+			status: 'completed'
 		},
 		{
-			id: 'ORD-003',
+			id: 'INV-003',
 			customer: 'Robert Johnson',
-			date: '2025-03-09T11:45:00',
-			total: 68.75,
-			status: 'completed',
-			items: 5
+			amount: 245.0,
+			date: '2023-03-13 04:45 PM',
+			status: 'completed'
 		},
 		{
-			id: 'ORD-004',
+			id: 'INV-004',
 			customer: 'Emily Davis',
-			date: '2025-03-09T10:20:00',
-			total: 15.99,
-			status: 'cancelled',
-			items: 1
+			amount: 36.75,
+			date: '2023-03-13 02:30 PM',
+			status: 'completed'
 		},
 		{
-			id: 'ORD-005',
+			id: 'INV-005',
 			customer: 'Michael Brown',
-			date: '2025-03-08T16:50:00',
-			total: 94.3,
-			status: 'completed',
-			items: 7
-		},
-		{
-			id: 'ORD-006',
-			customer: 'Lisa Wilson',
-			date: '2025-03-08T15:10:00',
-			total: 32.45,
-			status: 'pending',
-			items: 3
-		},
-		{
-			id: 'ORD-007',
-			customer: 'David Taylor',
-			date: '2025-03-08T09:05:00',
-			total: 56.2,
-			status: 'completed',
-			items: 4
-		},
-		{
-			id: 'ORD-008',
-			customer: 'Sarah Miller',
-			date: '2025-03-07T17:30:00',
-			total: 21.99,
-			status: 'completed',
-			items: 2
+			amount: 189.99,
+			date: '2023-03-13 11:20 AM',
+			status: 'completed'
 		}
 	];
 
-	// Filter states
-	let searchTerm = '';
-	let statusFilter = 'all';
-	let dateFilter = 'all';
-	let sortOrder = 'newest';
+	let timeFilter = 'This Week';
+	let salesChartCanvas: HTMLCanvasElement;
+	let salesChart: Chart;
 
-	// Derived state for filtered orders
-	$: filteredOrders = orders
-		.filter((order) => {
-			// Search filter
-			if (searchTerm && !order.id.toLowerCase().includes(searchTerm.toLowerCase())) {
-				return false;
-			}
+	onMount(() => {
+		// Initialize sales chart
+		const ctx = salesChartCanvas.getContext('2d');
 
-			// Status filter
-			if (statusFilter !== 'all' && order.status !== statusFilter) {
-				return false;
-			}
-
-			// Date filter
-			const orderDate = new Date(order.date);
-			const today = new Date();
-			const yesterday = new Date(today);
-			yesterday.setDate(yesterday.getDate() - 1);
-
-			if (dateFilter === 'today' && orderDate.toDateString() !== today.toDateString()) {
-				return false;
-			} else if (
-				dateFilter === 'yesterday' &&
-				orderDate.toDateString() !== yesterday.toDateString()
-			) {
-				return false;
-			} else if (dateFilter === 'thisWeek') {
-				const weekStart = new Date(today);
-				weekStart.setDate(today.getDate() - today.getDay());
-				if (orderDate < weekStart) {
-					return false;
+		if (ctx) {
+			salesChart = new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+					datasets: [
+						{
+							label: 'Sales',
+							data: [1800, 2200, 1900, 2800, 2100, 2500, 1800],
+							borderColor: 'rgb(99, 102, 241)',
+							backgroundColor: 'rgba(99, 102, 241, 0.1)',
+							tension: 0.4,
+							fill: true
+						}
+					]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							display: false
+						}
+					},
+					scales: {
+						x: {
+							grid: {
+								display: false
+							}
+						},
+						y: {
+							beginAtZero: true,
+							grid: {
+								color: 'rgba(0, 0, 0, 0.05)'
+							}
+						}
+					}
 				}
+			});
+		}
+
+		return () => {
+			if (salesChart) {
+				salesChart.destroy();
 			}
+		};
+	});
 
-			return true;
-		})
-		.sort((a, b) => {
-			const dateA = new Date(a.date);
-			const dateB = new Date(b.date);
-			return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-		});
-
-	// Format currency
-	function formatCurrency(amount) {
+	function formatCurrency(value: number): string {
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
 			currency: 'USD'
-		}).format(amount);
-	}
-
-	// Format date
-	function formatDate(dateString) {
-		const date = new Date(dateString);
-		return date.toLocaleString('en-US', {
-			month: 'short',
-			day: 'numeric',
-			hour: 'numeric',
-			minute: 'numeric',
-			hour12: true
-		});
-	}
-
-	// Pagination
-	let currentPage = 1;
-	let itemsPerPage = 4; // Reduced for mobile view
-	$: totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-	$: paginatedOrders = filteredOrders.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage
-	);
-
-	function goToPage(page) {
-		currentPage = page;
-	}
-
-	// Toggle order details on mobile view
-	let expandedOrders = new Set();
-
-	function toggleOrderDetails(orderId) {
-		if (expandedOrders.has(orderId)) {
-			expandedOrders.delete(orderId);
-		} else {
-			expandedOrders.add(orderId);
-		}
-		expandedOrders = expandedOrders; // Trigger reactivity
+		}).format(value);
 	}
 </script>
 
-<div class="container mx-auto max-w-md px-4 py-4">
-	<Card class="w-full">
-		<CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-			<CardTitle class="text-xl font-bold">Recent Orders</CardTitle>
-			<Button variant="default" size="sm" class="h-8 gap-1">
-				<Plus class="h-4 w-4" />
-				<span class="hidden sm:inline">New Order</span>
-			</Button>
-		</CardHeader>
-
-		<CardContent class="px-2 pt-4">
-			<!-- Search Bar -->
-			<div class="relative mb-4">
-				<Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-				<Input
-					type="text"
-					placeholder="Search by Order ID"
-					bind:value={searchTerm}
-					class="w-full pl-8"
-				/>
+<div class="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
+	<!-- Header -->
+	<header class="sticky top-0 z-10 bg-white shadow-sm dark:bg-gray-800">
+		<div class="flex items-center justify-between p-4">
+			<div class="flex items-center gap-2">
+				<button class="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+					<Menu size={24} class="text-gray-700 dark:text-gray-300" />
+				</button>
+				<h1 class="text-xl font-bold text-gray-900 dark:text-white">Sales Overview</h1>
 			</div>
-
-			<!-- Filter Controls - Grid for mobile -->
-			<div class="mb-4 grid grid-cols-2 gap-2">
-				<div>
-					<Select bind:value={statusFilter}>
-						<SelectTrigger class="w-full">
-							<SelectValue placeholder="Status" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">All Statuses</SelectItem>
-							<SelectItem value="completed">Completed</SelectItem>
-							<SelectItem value="pending">Pending</SelectItem>
-							<SelectItem value="cancelled">Cancelled</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-
-				<div>
-					<Select bind:value={dateFilter}>
-						<SelectTrigger class="w-full">
-							<SelectValue placeholder="Date" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">All Dates</SelectItem>
-							<SelectItem value="today">Today</SelectItem>
-							<SelectItem value="yesterday">Yesterday</SelectItem>
-							<SelectItem value="thisWeek">This Week</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-
-				<div class="col-span-2">
-					<Select bind:value={sortOrder}>
-						<SelectTrigger class="w-full">
-							<SelectValue placeholder="Sort by" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="newest">Newest First</SelectItem>
-							<SelectItem value="oldest">Oldest First</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
+			<div class="flex items-center gap-2">
+				<button class="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+					<Filter size={20} class="text-gray-700 dark:text-gray-300" />
+				</button>
+				<button class="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+					<Calendar size={20} class="text-gray-700 dark:text-gray-300" />
+				</button>
 			</div>
+		</div>
 
-			<!-- Order Cards for Mobile -->
-			<div class="space-y-3">
-				{#if filteredOrders.length === 0}
-					<div class="py-6 text-center text-muted-foreground">
-						No orders found matching your filters.
+		<!-- Time filter -->
+		<div class="px-4 pb-3">
+			<button
+				class="flex items-center text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-300"
+			>
+				{timeFilter}
+				<ChevronDown size={16} class="ml-1" />
+			</button>
+		</div>
+	</header>
+
+	<!-- Main content -->
+	<main class="flex-1 space-y-6 overflow-y-auto p-4">
+		<!-- Stats cards -->
+		<div class="grid grid-cols-2 gap-4">
+			<div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+				<div class="flex flex-col">
+					<span class="text-sm text-gray-500 dark:text-gray-400">Total Sales</span>
+					<span class="text-2xl font-bold text-gray-900 dark:text-white"
+						>{formatCurrency(totalSales)}</span
+					>
+					<div class="mt-2 flex items-center text-sm">
+						<div
+							class={salesGrowth >= 0
+								? 'flex items-center text-green-500'
+								: 'flex items-center text-red-500'}
+						>
+							{#if salesGrowth >= 0}
+								<ArrowUp size={14} />
+							{:else}
+								<ArrowDown size={14} />
+							{/if}
+							<span class="ml-1">{Math.abs(salesGrowth)}%</span>
+						</div>
+						<span class="ml-1 text-gray-500 dark:text-gray-400">vs last period</span>
 					</div>
-				{:else}
-					{#each paginatedOrders as order}
-						<Card class="w-full overflow-hidden">
-							<div
-								class="flex cursor-pointer items-center justify-between p-3"
-								on:click={() => toggleOrderDetails(order.id)}
-							>
-								<div>
-									<div class="font-medium">{order.id}</div>
-									<div class="text-sm text-muted-foreground">{formatDate(order.date)}</div>
+				</div>
+			</div>
+
+			<div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+				<div class="flex flex-col">
+					<span class="text-sm text-gray-500 dark:text-gray-400">Total Orders</span>
+					<span class="text-2xl font-bold text-gray-900 dark:text-white">{totalOrders}</span>
+					<div class="mt-2 flex items-center text-sm">
+						<div class="flex items-center text-green-500">
+							<ArrowUp size={14} />
+							<span class="ml-1">8.2%</span>
+						</div>
+						<span class="ml-1 text-gray-500 dark:text-gray-400">vs last period</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+				<div class="flex flex-col">
+					<span class="text-sm text-gray-500 dark:text-gray-400">Avg. Order Value</span>
+					<span class="text-2xl font-bold text-gray-900 dark:text-white"
+						>{formatCurrency(averageOrderValue)}</span
+					>
+					<div class="mt-2 flex items-center text-sm">
+						<div class="flex items-center text-green-500">
+							<ArrowUp size={14} />
+							<span class="ml-1">3.7%</span>
+						</div>
+						<span class="ml-1 text-gray-500 dark:text-gray-400">vs last period</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+				<div class="flex flex-col">
+					<span class="text-sm text-gray-500 dark:text-gray-400">Items Sold</span>
+					<span class="text-2xl font-bold text-gray-900 dark:text-white">432</span>
+					<div class="mt-2 flex items-center text-sm">
+						<div class="flex items-center text-red-500">
+							<ArrowDown size={14} />
+							<span class="ml-1">2.1%</span>
+						</div>
+						<span class="ml-1 text-gray-500 dark:text-gray-400">vs last period</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Sales chart -->
+		<div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-lg font-semibold text-gray-900 dark:text-white">Sales Trend</h2>
+			</div>
+			<div class="h-64">
+				<canvas bind:this={salesChartCanvas}></canvas>
+			</div>
+		</div>
+
+		<!-- Recent transactions -->
+		<div class="rounded-lg bg-white shadow dark:bg-gray-800">
+			<div
+				class="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700"
+			>
+				<h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Transactions</h2>
+				<button class="text-sm font-medium text-primary">View All</button>
+			</div>
+			<div class="divide-y divide-gray-200 dark:divide-gray-700">
+				{#each recentTransactions as transaction}
+					<div class="p-4">
+						<div class="flex items-start justify-between">
+							<div>
+								<div class="font-medium text-gray-900 dark:text-white">{transaction.id}</div>
+								<div class="text-sm text-gray-500 dark:text-gray-400">{transaction.customer}</div>
+								<div class="text-xs text-gray-500 dark:text-gray-400">{transaction.date}</div>
+							</div>
+							<div class="text-right">
+								<div class="font-medium text-gray-900 dark:text-white">
+									{formatCurrency(transaction.amount)}
 								</div>
-								<div class="flex flex-col items-end">
-									<div class="font-medium">{formatCurrency(order.total)}</div>
-									<Badge
-										variant={order.status === 'completed'
-											? 'success'
-											: order.status === 'pending'
-												? 'warning'
-												: 'destructive'}
-									>
-										{order.status}
-									</Badge>
+								<div
+									class="mt-1 inline-block rounded-full bg-green-100 px-2 py-1 text-xs text-green-800 dark:bg-green-900 dark:text-green-200"
+								>
+									{transaction.status}
 								</div>
 							</div>
-
-							{#if expandedOrders.has(order.id)}
-								<Separator />
-								<div class="bg-muted/30 p-3">
-									<div class="grid grid-cols-2 gap-2 text-sm">
-										<div class="text-muted-foreground">Customer:</div>
-										<div class="font-medium">{order.customer}</div>
-
-										<div class="text-muted-foreground">Items:</div>
-										<div class="font-medium">{order.items}</div>
-
-										<div class="text-muted-foreground">Date:</div>
-										<div class="font-medium">{formatDate(order.date)}</div>
-
-										<div class="text-muted-foreground">Total:</div>
-										<div class="font-medium">{formatCurrency(order.total)}</div>
-									</div>
-
-									<div class="mt-3 flex justify-end gap-2">
-										<Button variant="outline" size="sm" class="h-8 gap-1">
-											<Eye class="h-4 w-4" />
-											<span>View</span>
-										</Button>
-										<Button variant="outline" size="sm" class="h-8 gap-1">
-											<Printer class="h-4 w-4" />
-											<span>Print</span>
-										</Button>
-									</div>
-								</div>
-							{/if}
-						</Card>
-					{/each}
-				{/if}
-			</div>
-
-			<!-- Pagination for Mobile -->
-			{#if totalPages > 1}
-				<div class="mt-4 flex items-center justify-between">
-					<Button
-						variant="outline"
-						size="sm"
-						on:click={() => goToPage(Math.max(1, currentPage - 1))}
-						disabled={currentPage === 1}
-					>
-						<ChevronLeft class="h-4 w-4" />
-					</Button>
-
-					<div class="text-sm">
-						Page {currentPage} of {totalPages}
+						</div>
 					</div>
-
-					<Button
-						variant="outline"
-						size="sm"
-						on:click={() => goToPage(Math.min(totalPages, currentPage + 1))}
-						disabled={currentPage === totalPages}
-					>
-						<ChevronRight class="h-4 w-4" />
-					</Button>
-				</div>
-			{/if}
-
-			<!-- Summary text -->
-			<div class="mt-2 text-center text-xs text-muted-foreground">
-				Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(
-					currentPage * itemsPerPage,
-					filteredOrders.length
-				)} of {filteredOrders.length} orders
+				{/each}
 			</div>
-		</CardContent>
-	</Card>
+		</div>
+	</main>
+
+	<!-- Bottom navigation -->
+	<div class="fixed bottom-4 right-4 z-10">
+		<button class="hover:bg-primary-dark rounded-full bg-primary p-4 text-white shadow-lg">
+			<Plus size={24} />
+		</button>
+	</div>
+
+	<nav
+		class="sticky bottom-0 flex justify-around border-t border-gray-200 bg-white px-6 py-2 dark:border-gray-700 dark:bg-gray-800"
+	>
+		<button class="flex flex-col items-center p-2 text-primary">
+			<ShoppingBag size={20} />
+			<span class="mt-1 text-xs">Sales</span>
+		</button>
+		<button class="flex flex-col items-center p-2 text-gray-500 dark:text-gray-400">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="20"
+				height="20"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+				<path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+			</svg>
+			<span class="mt-1 text-xs">Inventory</span>
+		</button>
+		<button class="flex flex-col items-center p-2 text-gray-500 dark:text-gray-400">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="20"
+				height="20"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+				<circle cx="9" cy="7" r="4"></circle>
+				<path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+				<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+			</svg>
+			<span class="mt-1 text-xs">Customers</span>
+		</button>
+		<button class="flex flex-col items-center p-2 text-gray-500 dark:text-gray-400">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="20"
+				height="20"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<circle cx="12" cy="12" r="3"></circle>
+				<path
+					d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+				></path>
+			</svg>
+			<span class="mt-1 text-xs">Settings</span>
+		</button>
+	</nav>
 </div>

@@ -5,6 +5,10 @@
 	"main": "index.cjs",
 	"scripts": {
 		"dev": "vite dev",
+		"dev:tunnel": "vite dev --host",
+		"tunnel": "dev-tunnel create --config dev-tunnel.json",
+		"tunnel:list": "dev-tunnel list",
+		"tunnel:delete": "dev-tunnel delete pos-system-tunnel",
 		"build": "vite build",
 		"preview": "vite preview",
 		"anroid": "tauri android dev",
@@ -50,6 +54,7 @@
 	"dependencies": {
 		"@internationalized/date": "^3.5.5",
 		"@unovis/svelte": "1.4.3-beta.0",
+		"chart.js": "^4.4.8",
 		"clsx": "^2.1.1",
 		"date-fns": "^3.6.0",
 		"dexie": "^4.0.8",

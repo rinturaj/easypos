@@ -194,7 +194,6 @@
 		{ id: 'food', name: 'Food' },
 		{ id: 'desserts', name: 'Desserts' }
 	];
-
 </script>
 
 <div>
