@@ -3,9 +3,8 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { liveQuery } from 'dexie';
-	import { df, type Product, type ProductStock } from '../../../database/model';
-	import { componentData, componentSide, sheetOpen } from '../../../lib/component.store';
-	import AddProducts from '../../../lib/components/custom/AddProducts.svelte';
+	import { df, type ProductStock } from '../../../database/model';
+	import { componentData, componentSide } from '../../../lib/component.store';
 	import Badge from '../../../lib/components/ui/badge/badge.svelte';
 	import { db } from '../../../database/db';
 	import { Edit, Trash2 } from 'lucide-svelte';
@@ -16,7 +15,11 @@
 	let onDelete = false;
 	let onDeleteProduct: ProductStock;
 	$: productStocks = liveQuery(async () => {
-		return await db.productStock.toArray();
+		return await db.productStock
+			.orderBy('purchasedOn')
+			.reverse()
+			.filter((x) => x.remainingQty > 0)
+			.toArray();
 	});
 
 	function view(p: ProductStock) {
@@ -55,6 +58,7 @@
 						<Table.Head>Product</Table.Head>
 						<Table.Head class="hidden sm:table-cell">Purchase On</Table.Head>
 						<Table.Head class="">Qty</Table.Head>
+						<Table.Head class="">Remaining Qty</Table.Head>
 						<Table.Head class="">Amount</Table.Head>
 						<Table.Head class="text-right">...</Table.Head>
 					</Table.Row>
@@ -70,6 +74,9 @@
 								<Table.Cell class="hidden sm:table-cell">{df.format(p.purchasedOn)}</Table.Cell>
 								<Table.Cell class="">
 									<Badge class="text-xs" variant="secondary">{p.quantity}</Badge>
+								</Table.Cell>
+								<Table.Cell class="">
+									<Badge class="text-xs" variant="secondary">{p.remainingQty}</Badge>
 								</Table.Cell>
 								<Table.Cell class="">
 									<span class="currency text-green-900">{p.purchaseRate}</span>

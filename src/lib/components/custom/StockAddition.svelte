@@ -5,11 +5,19 @@
 	import { componentSide } from '../../component.store';
 	import Button from '../ui/button/button.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { parseUnit, type Product, type ProductStock, type Unit } from '../../../database/model';
+	import {
+		parseUnit,
+		StockOverviewClass,
+		type Product,
+		type ProductStock,
+		type StockOverview,
+		type Unit
+	} from '../../../database/model';
 	import { db } from '../../../database/db';
 	import { toast } from 'svelte-sonner';
 	import { liveQuery } from 'dexie';
 	import { format } from 'date-fns/format';
+	import { updateStockOverview } from '../../stock';
 
 	export let data;
 
@@ -25,7 +33,8 @@
 		unit: 'gram',
 		purchasedOn: new Date(),
 		purchaseRate: 0,
-		quantity: 0
+		quantity: 0,
+		remainingQty: 0
 	};
 
 	$: if (!!data) {
@@ -48,6 +57,43 @@
 		if (!isNaN(selectedDate.getTime())) {
 			newData.purchasedOn = selectedDate;
 		}
+	}
+
+	async function stockOverview(name: string) {
+		const p = (await db.product.where('name').equals(name).toArray()).find((x) => x.name == name);
+		console.log(p);
+
+		if (!p) return;
+
+		let stock = await db.productStock
+			.where('name')
+			.equals(p.name)
+			.filter((x) => x.remainingQty > 0)
+			.toArray();
+		let overview = await getStockOverview(p);
+		if (!overview) {
+			overview = new StockOverviewClass({
+				name: p?.name,
+				code: p?.code,
+				productId: p?.id,
+				unit: p?.unit
+			});
+		}
+		overview = updateStockOverview(overview, stock);
+		if (!overview.id) await db.stockOverview.add(overview);
+		else await db.stockOverview.update(overview.id, { ...overview });
+
+		toast.info('Stock overview updated');
+	}
+	async function getStockOverview(p?: Product) {
+		if (!p) return;
+
+		const stock = await db.stockOverview
+			.where('productId')
+			.equals(p.id || '')
+			.toArray();
+		let overview = stock.find((x) => x.productId == p.id);
+		return overview;
 	}
 </script>
 
@@ -116,12 +162,16 @@
 			newData.purchaseRate == 0 ||
 			newData.quantity == 0 ||
 			newData.purchasedOn == null}
-		on:click={() => {
+		on:click={async () => {
+			newData.remainingQty = newData.quantity;
 			if (newData.id == '') delete newData.id;
 			console.log(newData);
 			if (newData.id == undefined) db.productStock.add(newData);
 			else db.productStock.update(newData.id, { ...newData });
+
+			await stockOverview(newData.name);
 			toast.success('Stock  added successfully');
+
 			componentSide.set(null);
 		}}
 		variant="default">Submit</Button

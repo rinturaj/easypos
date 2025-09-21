@@ -19,6 +19,13 @@ export const route: Route[] = [
 		variant: 'ghost'
 	},
 	{
+		title: 'POS',
+		label: '',
+		link: base + '/dashboard/pos',
+		icon: DollarSign,
+		variant: 'ghost'
+	},
+	{
 		title: 'Sales',
 		label: '',
 		link: base + '/dashboard/sales',

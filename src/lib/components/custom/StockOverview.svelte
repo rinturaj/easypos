@@ -2,6 +2,50 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
+	import { liveQuery } from 'dexie';
+	import { db } from '../../../database/db';
+	import Button from '../ui/button/button.svelte';
+	import { Calculator } from 'lucide-svelte';
+	import { StockOverviewClass, type Product, type StockOverview } from '../../../database/model';
+	import { updateStockOverview } from '../../stock';
+	import { toast } from 'svelte-sonner';
+
+	$: sv = liveQuery(async () => {
+		return await db.stockOverview.toArray();
+	});
+
+	$: products = liveQuery(async () => {
+		return await db.product.toArray();
+	});
+
+	async function stockOverview(p: Product, s: StockOverview[]) {
+		console.log(p);
+
+		let stock = await db.productStock
+			.where('name')
+			.equals(p.name)
+			.filter((x) => x.remainingQty > 0)
+			.toArray();
+		let overview = getStockOverview(p, s);
+		if (!overview) {
+			overview = new StockOverviewClass({
+				name: p.name,
+				code: p.code,
+				productId: p.id,
+				unit: p.unit
+			});
+		}
+		overview = updateStockOverview(overview, stock);
+		if (!overview.id) await db.stockOverview.add(overview);
+		else await db.stockOverview.update(overview.id, { ...overview });
+
+		toast.info('Stock overview updated');
+	}
+
+	function getStockOverview(p: Product, stock: StockOverview[]) {
+		let overview = stock.find((x) => x.productId == p.id);
+		return overview;
+	}
 </script>
 
 <Card.Root>
@@ -13,110 +57,46 @@
 		<Table.Root>
 			<Table.Header>
 				<Table.Row>
-					<Table.Head>Customer</Table.Head>
-					<Table.Head class="hidden sm:table-cell">Type</Table.Head>
-					<Table.Head class="hidden sm:table-cell">Status</Table.Head>
-					<Table.Head class="hidden md:table-cell">Date</Table.Head>
-					<Table.Head class="text-right">Amount</Table.Head>
+					<Table.Head>Product</Table.Head>
+					<Table.Head class="hidden sm:table-cell">Unit</Table.Head>
+					<Table.Head class=" sm:table-cell">Quantity</Table.Head>
+					<Table.Head class=" md:table-cell">Total Price</Table.Head>
+					<Table.Head class="">Average Price</Table.Head>
+					<Table.Head class="text-right"></Table.Head>
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				<Table.Row class="bg-accent">
-					<Table.Cell>
-						<div class="font-medium">Liam Johnson</div>
-						<div class="hidden text-sm text-muted-foreground md:inline">liam@example.com</div>
-					</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">Sale</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">
-						<Badge class="text-xs" variant="secondary">Fulfilled</Badge>
-					</Table.Cell>
-					<Table.Cell class="hidden md:table-cell">2023-06-23</Table.Cell>
-					<Table.Cell class="text-right">$250.00</Table.Cell>
-				</Table.Row>
-				<Table.Row>
-					<Table.Cell>
-						<div class="font-medium">Olivia Smith</div>
-						<div class="hidden text-sm text-muted-foreground md:inline">olivia@example.com</div>
-					</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">Refund</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">
-						<Badge class="text-xs" variant="outline">Declined</Badge>
-					</Table.Cell>
-					<Table.Cell class="hidden md:table-cell">2023-06-24</Table.Cell>
-					<Table.Cell class="text-right">$150.00</Table.Cell>
-				</Table.Row>
-				<Table.Row>
-					<Table.Cell>
-						<div class="font-medium">Liam Johnson</div>
-						<div class="hidden text-sm text-muted-foreground md:inline">liam@example.com</div>
-					</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">Sale</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">
-						<Badge class="text-xs" variant="secondary">Fulfilled</Badge>
-					</Table.Cell>
-					<Table.Cell class="hidden md:table-cell">2023-06-23</Table.Cell>
-					<Table.Cell class="text-right">$250.00</Table.Cell>
-				</Table.Row>
-				<Table.Row>
-					<Table.Cell>
-						<div class="font-medium">Noah Williams</div>
-						<div class="hidden text-sm text-muted-foreground md:inline">noah@example.com</div>
-					</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">Subscription</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">
-						<Badge class="text-xs" variant="secondary">Fulfilled</Badge>
-					</Table.Cell>
-					<Table.Cell class="hidden md:table-cell">2023-06-25</Table.Cell>
-					<Table.Cell class="text-right">$350.00</Table.Cell>
-				</Table.Row>
-				<Table.Row>
-					<Table.Cell>
-						<div class="font-medium">Emma Brown</div>
-						<div class="hidden text-sm text-muted-foreground md:inline">emma@example.com</div>
-					</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">Subscription</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">
-						<Badge class="text-xs" variant="secondary">Fulfilled</Badge>
-					</Table.Cell>
-					<Table.Cell class="hidden md:table-cell">2023-06-26</Table.Cell>
-					<Table.Cell class="text-right">$450.00</Table.Cell>
-				</Table.Row>
-				<Table.Row>
-					<Table.Cell>
-						<div class="font-medium">Liam Johnson</div>
-						<div class="hidden text-sm text-muted-foreground md:inline">liam@example.com</div>
-					</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">Sale</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">
-						<Badge class="text-xs" variant="secondary">Fulfilled</Badge>
-					</Table.Cell>
-					<Table.Cell class="hidden md:table-cell">2023-06-23</Table.Cell>
-					<Table.Cell class="text-right">$250.00</Table.Cell>
-				</Table.Row>
-				<Table.Row>
-					<Table.Cell>
-						<div class="font-medium">Olivia Smith</div>
-						<div class="hidden text-sm text-muted-foreground md:inline">olivia@example.com</div>
-					</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">Refund</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">
-						<Badge class="text-xs" variant="outline">Declined</Badge>
-					</Table.Cell>
-					<Table.Cell class="hidden md:table-cell">2023-06-24</Table.Cell>
-					<Table.Cell class="text-right">$150.00</Table.Cell>
-				</Table.Row>
-				<Table.Row>
-					<Table.Cell>
-						<div class="font-medium">Emma Brown</div>
-						<div class="hidden text-sm text-muted-foreground md:inline">emma@example.com</div>
-					</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">Sale</Table.Cell>
-					<Table.Cell class="hidden sm:table-cell">
-						<Badge class="text-xs" variant="secondary">Fulfilled</Badge>
-					</Table.Cell>
-					<Table.Cell class="hidden md:table-cell">2023-06-26</Table.Cell>
-					<Table.Cell class="text-right">$450.00</Table.Cell>
-				</Table.Row>
+				{#if !!$products && $products.length > 0}
+					{#each $products as p}
+						<Table.Row class="bg-accent">
+							<Table.Cell>
+								<div class="font-medium">{p.name}</div>
+								<div class="hidden text-sm text-muted-foreground md:inline">{p.code}</div>
+							</Table.Cell>
+							<Table.Cell class="hidden sm:table-cell">{p.unit}</Table.Cell>
+							<Table.Cell class=" sm:table-cell">
+								<Badge class="text-xs" variant="secondary"
+									>{getStockOverview(p, $sv)?.currentQuantity || 0}</Badge
+								>
+							</Table.Cell>
+							<Table.Cell class=" currency md:table-cell"
+								>{getStockOverview(p, $sv)?.totalValue || 0}</Table.Cell
+							>
+							<Table.Cell class="currency">{getStockOverview(p, $sv)?.averagePrice || 0}</Table.Cell
+							>
+							<Table.Cell class="text-right">
+								<Button
+									on:click={() => {
+										stockOverview(p, $sv);
+									}}
+									variant="outline"
+								>
+									<Calculator></Calculator>
+								</Button>
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				{/if}
 			</Table.Body>
 		</Table.Root>
 	</Card.Content>
